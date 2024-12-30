@@ -1,0 +1,13 @@
+{
+  "name": "kwchatbot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "server": "uvicorn backend.server:app --reload --port 5000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "description": ""
+}
