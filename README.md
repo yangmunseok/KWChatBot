@@ -17,8 +17,6 @@ ChatBot using RAGS
 OPENAI_API_KEY = "your openai api key"
 HF_HUB_DISABLE_SYMLINKS_WARNING = 1
 ```
-
-```
 from project root folder
 ```
 pip install -r requirements.txt
