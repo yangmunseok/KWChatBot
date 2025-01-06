@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, FewShotChatMessagePromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -8,9 +7,6 @@ from langchain_community.vectorstores.utils import DistanceStrategy
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import CharacterTextSplitter
 import os
-
-# API KEY 정보로드
-load_dotenv()
 
 def load_data():
     current_dir = os.path.dirname(__file__)
@@ -22,8 +18,8 @@ def load_data():
 def text_split(docs):
     splitter = CharacterTextSplitter(
         separator = '',
-        chunk_size = 10000,
-        chunk_overlap = 2000,
+        chunk_size = 1000,
+        chunk_overlap = 200,
         length_function = len
     )
     documents = splitter.split_documents(docs)
