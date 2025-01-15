@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "server": "uvicorn backend.server:app --port 5000"
+    "server": "uvicorn backend.server:app --port=5000"
   },
   "keywords": [],
   "author": "",

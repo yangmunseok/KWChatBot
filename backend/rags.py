@@ -6,12 +6,14 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.vectorstores.utils import DistanceStrategy
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import CharacterTextSplitter
+from langchain_community.document_loaders import DirectoryLoader
 import os
 
 def load_data():
     current_dir = os.path.dirname(__file__)
-    file_path = os.path.join(current_dir, "documents", "2-2. 졸업이수학점 안내.md")
-    loader = TextLoader(file_path, encoding = 'utf-8')
+    #file_path = os.path.join(current_dir, "documents", "2-2. 졸업이수학점 안내.md")
+    loader = DirectoryLoader(path='./backend/documents/', glob='*.md', loader_cls=TextLoader, loader_kwargs={"encoding": "utf-8"})
+    #loader = TextLoader(file_path, encoding = 'utf-8')
     data = loader.load()
     return data
 

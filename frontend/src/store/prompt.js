@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import JSEncrypt from 'jsencrypt';
+import { redirect } from 'react-router-dom';
 
 export const usePromptStore = create((set) => ({
     prompts:[],
@@ -10,5 +12,10 @@ export const usePromptStore = create((set) => ({
             return { success:false, message:data.message };
         set((state) => ({prompts:[...state.prompts,data.data]}));
         return { success:true, message:data.data };
+    },
+    fetchPrompts: async() => {
+        const res = await fetch("/api/prompts")
+        const data = await res.json();
+        set({prompts: data.data});
     }
 }));
