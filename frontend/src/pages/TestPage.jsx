@@ -27,7 +27,7 @@ const TestPage = () => {
                 onChange={(e) => setUser({ ...user, userPwd: e.target.value })}
             />
             <Button colorScheme='blue' onClick={handleLogin} w='full'>
-                Add Product
+                Login
             </Button>
         </VStack>
     </Box>
