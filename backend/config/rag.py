@@ -7,13 +7,12 @@ from langchain_community.vectorstores.utils import DistanceStrategy
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import CharacterTextSplitter
 from langchain_community.document_loaders import DirectoryLoader
+from dotenv import load_dotenv
 import os
 
 def load_data():
     current_dir = os.path.dirname(__file__)
-    #file_path = os.path.join(current_dir, "documents", "2-2. 졸업이수학점 안내.md")
     loader = DirectoryLoader(path='./backend/documents/', glob='*.md', loader_cls=TextLoader, loader_kwargs={"encoding": "utf-8"})
-    #loader = TextLoader(file_path, encoding = 'utf-8')
     data = loader.load()
     return data
 
@@ -57,4 +56,9 @@ def get_chain():
     prompt = ChatPromptTemplate.from_template(template)
     chain = prompt | llm | StrOutputParser()
     return chain
+
+load_dotenv()
+vectorstore = indexing(text_split(load_data()))
+retriever = vectorstore.as_retriever(search_kwargs={'k': 5})
+chain = get_chain()
 

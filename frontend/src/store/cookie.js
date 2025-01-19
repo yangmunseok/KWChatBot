@@ -7,12 +7,23 @@ export const useCookieStore = create((set) => ({
     setCookies: (cookies) => set({cookies}),
     getCookies: async(user) => {
         const login = JSON.stringify({loginId: user.userId, loginPwd: user.userPwd, storeIdYn: 'N'});
+        const body = JSON.stringify({id:user.userId, password: user.userPwd});
+        console.log(body);
+        
         const encrypt = new JSEncrypt();
-        const res1 = await fetch("https://klas.kw.ac.kr/usr/cmn/login/LoginSecurity.do");
-        const data1 = await res1.json();
-        encrypt.setPublicKey(data1.publicKey);
-        const loginToken = encrypt.encrypt(login);
-        const res = await fetch("https://klas.kw.ac.kr/usr/cmn/login/LoginConfirm.do", {method:"POST", headers: {"Content-type":"application/json",}, body:JSON.stringify({loginToken:loginToken,redirectUrl:"",redirectTabUrl:""})});
-        console.log(res);
+        const res = await fetch("http://localhost:5000/api/users",{
+            headers: {
+                "Content-type":"application/json",
+            },
+            method: "POST",
+            body: body
+        });
+        const data = await res.json();
+
+        encrypt.setPublicKey(data.public_key);
+        const loginToken = encrypt.encrypt(data.login_data);
+        console.log("logindata: ",login);
+        console.log("loginToken: ",String(loginToken));
+        console.log("python loginToken: ",data.login_token);
     }
 }));
