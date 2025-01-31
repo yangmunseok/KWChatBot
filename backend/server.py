@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.routes.prompt_route import router as promptRoutes
-from backend.routes.user_route import router as userRoutes
+from backend.routes.crawl_route import router as crawlRoutes
 
 app = FastAPI()
 app.include_router(promptRoutes,prefix="/api/prompts")
-app.include_router(userRoutes,prefix="/api/users")
+app.include_router(crawlRoutes,prefix="/api/crawl")
 
 origins=["*"]
 app.add_middleware(

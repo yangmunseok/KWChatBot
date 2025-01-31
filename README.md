@@ -6,6 +6,9 @@ KWChatBot
 
 ChatBot using RAGS
 
+![Chat Page](frontend/public/screenshot1.png)
+![Login Page](frontend/public/screenshot2.png)
+
 ## Getting Started
 
 ### Dependencies

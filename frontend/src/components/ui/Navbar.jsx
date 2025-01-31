@@ -22,65 +22,23 @@ import { IoIosMenu } from "react-icons/io";
 import { IoChatboxEllipses } from "react-icons/io5";
 const Navbar = () => {
   return (
-    <Container maxW={"1140px"} px={"4"}>
-        <Flex
-            h={16}
-            alignItems={"center"}
-            justifyContent={"space-between"}
-            flexDir={{
-                base:"column",
-                sm:"row",
-            }}
-        >
-          <HStack spacing={2} alignItems={"center"}>
-            <DrawerRoot size={"sm"} placement={"start"}>
-              <DrawerBackdrop />
-              <DrawerTrigger asChild>
-                <IconButton variant={"ghost"}>
-                  <IoIosMenu/>
-                </IconButton>
-              </DrawerTrigger>
-              <DrawerContent>
-                <DrawerHeader>
-                  <DrawerTitle>
-                    Side Menu
-                  </DrawerTitle>
-                </DrawerHeader>
-                <DrawerBody>
-                  <p>
-                    chat list
-                  </p>
-                </DrawerBody>
-                <DrawerFooter>close</DrawerFooter>
-                <DrawerCloseTrigger />
-              </DrawerContent>
-            </DrawerRoot>
-            <IconButton variant={"ghost"}>
-              <IoChatboxEllipses />
-            </IconButton>
-            <MenuRoot>
-              <MenuTrigger asChild>
-                <Button variant={"ghost"}>
-                  ChatGpt
-                </Button>
-              </MenuTrigger>
-              <MenuContent>
-                <MenuItem value="LLaMa 3">
-                  LLaMa 3
-                </MenuItem>
-                <MenuItem value="Falcon 2">
-                  Falcon 2
-                </MenuItem>
-                <MenuItem value="Gemma">
-                  Gemma
-                </MenuItem>
-              </MenuContent>
-            </MenuRoot>
-          </HStack>
-          <Avatar src="https://bit.ly/broken-link" colorPalette="red"/>
-        </Flex>      
-
-    </Container>
+  <header className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm z-50 border-b border-gray-100">
+    <nav className="max-w-8xl mx-auto px-6 h-20 flex items-center justify-between">
+        <a href="#" className="flex items-center">
+            <img src="../src/assets/logo.png" alt="Logo" class="h-24"/>
+        </a>
+        <div className="hidden lg:flex items-center space-x-8">
+            <a href="#" className="text-custom font-medium">Home</a>
+            <a href="#" className="text-gray-600 hover:text-custom font-medium">Features</a>
+            <a href="#" className="text-gray-600 hover:text-custom font-medium">Pricing</a>
+            <a href="#" className="text-gray-600 hover:text-custom font-medium">Contact</a>
+            <a href="http://localhost:5173/login">
+              <button className="!rounded-button bg-custom text-white px-6 py-2.5 font-medium hover:bg-custom/90">Get Started</button>
+            </a>
+            
+        </div>
+    </nav>
+  </header>
   );
 }
 
