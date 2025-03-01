@@ -17,3 +17,6 @@ pydantic
 motor
 selenium
 bs4
+passlib[bcrypt]
+pyjwt
+langchain_teddynote
