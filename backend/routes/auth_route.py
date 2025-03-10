@@ -79,8 +79,10 @@ async def signup(userform: SignUpForm, response: Response):
             "기타 학점": None,
             "총 학점": None,
             "수강한 과목": None,
-            "userid": user.inserted_id,
             "전공 타입": None,
+            "크롤링": False,
+            "userid": user.inserted_id,
+            "topcit": False,
         }
     )
     user = await users.find_one_and_update(

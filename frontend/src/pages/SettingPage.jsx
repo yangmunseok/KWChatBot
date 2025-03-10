@@ -6,6 +6,7 @@ const SettingPage = () => {
   const klasForm = useRef({ id: "", password: "" });
   const toastId = useRef();
   const majorTypesOption = useRef();
+  const topcitCheckBox = useRef();
   const majorTypes = [
     "단일 전공",
     "심화 전공",
@@ -36,15 +37,17 @@ const SettingPage = () => {
     retry: false,
   });
 
-  const { mutate: majorMutation } = useMutation({
+  const { mutate: studentMutation } = useMutation({
     mutationFn: async () => {
       try {
         const majorType = majorTypesOption.current.value;
         console.log("majorType: ", majorType);
-        const res = await fetch("api/student/setStudentMajorType", {
+        const topcitTaken = topcitCheckBox.current.checked;
+        console.log("topcit: ", topcitTaken);
+        const res = await fetch("api/student/updateStudentInfo", {
           method: "POST",
           headers: { "Content-type": "application/json" },
-          body: JSON.stringify({ major_type: majorType }),
+          body: JSON.stringify({ major_type: majorType, topcit: topcitTaken }),
         });
         if (!res.ok) {
           throw new Error(
@@ -54,6 +57,10 @@ const SettingPage = () => {
       } catch (error) {
         throw new Error(error);
       }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["studentData"]);
+      toast.success("User Info Updated!");
     },
   });
 
@@ -65,7 +72,7 @@ const SettingPage = () => {
   } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch("api/student/setStudentInfo", {
+        const res = await fetch("api/student/crawlStudentInfo", {
           method: "POST",
           headers: { "Content-type": "application/json" },
           body: JSON.stringify({
@@ -85,7 +92,6 @@ const SettingPage = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["studentData"]);
       toast.success("Crawling completed!");
     },
     onError: () => {
@@ -127,6 +133,20 @@ const SettingPage = () => {
                     <option key={major}>{major}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <p className="block text-sm font-medium text-gray-700">
+                  Graduation requirements
+                </p>
+                <input
+                  ref={topcitCheckBox}
+                  defaultChecked={studentData["topcit"]}
+                  className="m-1"
+                  type="checkbox"
+                  id="topcit"
+                  value="topcit"
+                />
+                <label htmlFor="topcit">TOPCIT</label>
               </div>
             </div>
           </section>
@@ -218,7 +238,7 @@ const SettingPage = () => {
             </div>
           </section>
           <button
-            onClick={majorMutation}
+            onClick={studentMutation}
             class="!rounded-button text-white px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
           >
             Save

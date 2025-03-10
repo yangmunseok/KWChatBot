@@ -87,7 +87,6 @@ def find_md_files():
         for file_name in files:
             if file_name.endswith(".md"):
                 md_files.append(os.path.join(root, file_name))
-    print("찾은 md 파일들:", md_files)
 
     return md_files
 
@@ -104,6 +103,27 @@ def split_files(md_files):
         "2025_1_grad_requirement_p19_29_liberal_arts.md": {
             "separators": ["\n# "],
             "chunk_size": 500,
+            "chunk_overlap": 0,
+        },
+        "2025_1_grad_engineer_subj_p45_49.md": {
+            "separators": ["# "],
+            "chunk_size": 500,
+            "chunk_overlap": 0,
+        },
+        "2025_1_grad_engineer_msi_p50_73.md": {
+            "separators": ["# "],
+            "chunk_size": 500,
+            "chunk_overlap": 0,
+        },
+        "2025_1_grad_majors.md": {
+            "separators": ["\n#"],
+            "chunk_size": 150,
+            "chunk_overlap": 0,
+        },
+        # Course
+        "course_evaluation.md": {
+            "separators": ["##", "\n\n"],
+            "chunk_size": 70,
             "chunk_overlap": 0,
         },
     }
@@ -132,7 +152,7 @@ def split_files(md_files):
 
             """
             # split 출력 
-            if file.split('\\')[-1] == '2025_1_grad_requirement_p19_29_credits.md':
+            if file.split('\\')[-1] == 'course_evaluation.md':
                 print("splits len: ", len(splits))
                 for idx, split in enumerate(splits):
                     print(idx + 1,"번째: ", split)
@@ -148,7 +168,7 @@ def split_files(md_files):
                     chunk.metadata = {"id": metadata_id}
 
         else:
-            splits = doc
+            continue
 
         print("file: ", file, "split: ", len(splits))
         docs[file] = splits
@@ -177,6 +197,5 @@ if __name__ == "__main__":
     # test_file()    # 하나만 빠르게 하고 싶을 떄
 
     md_files = find_md_files()  # md파일 찾기
-
     docs = split_files(md_files)
     embedding_save_files(docs)

@@ -4,16 +4,15 @@ import Question from "@/components/ui/Question";
 import Answer from "@/components/ui/Answer";
 
 const ChatPage = () => {
-  const [newPrompt, setNewPrompt] = useState({ query: "" });
+  const [newPrompt, setNewPrompt] = useState({ question: "" });
   const { prompts, createPrompt, fetchPrompts } = usePromptStore();
   const HandleAddPrompt = async () => {
     const { success, message } = await createPrompt(newPrompt);
-    setNewPrompt({ query: "" });
+    setNewPrompt({ question: "" });
   };
   useEffect(() => {
     fetchPrompts();
   }, [fetchPrompts]);
-
   return (
     <main className="flex-grow pt-20 pb-16 max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex gap-6">
@@ -53,7 +52,7 @@ const ChatPage = () => {
               {prompts.map((prompt) => (
                 <div key={prompt._id} className="space-y-4">
                   <Question question={prompt.question} />
-                  <Answer answer={prompt.answer} />
+                  <Answer answer={prompt.final_response} />
                 </div>
               ))}
             </div>
@@ -69,9 +68,9 @@ const ChatPage = () => {
                   type="text"
                   placeholder="Type your message..."
                   className="flex-1 border-0 focus:ring-0 bg-gray-100 rounded-lg text-black"
-                  value={newPrompt.query}
+                  value={newPrompt.question}
                   onChange={(e) =>
-                    setNewPrompt({ ...newPrompt, query: e.target.value })
+                    setNewPrompt({ ...newPrompt, question: e.target.value })
                   }
                 />
                 <button

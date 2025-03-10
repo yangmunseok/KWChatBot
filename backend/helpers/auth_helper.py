@@ -13,8 +13,6 @@ import json
 from jwt.exceptions import ExpiredSignatureError
 
 seoul_tz = pytz.timezone("Asia/Seoul")
-load_dotenv()
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 users = db["users"]
 

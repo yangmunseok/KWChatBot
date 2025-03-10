@@ -23,6 +23,11 @@ function App() {
         const res = await fetch("/api/auth/getme");
         const data = await res.json();
 
+        //for quick logout
+        if (data?.error || data?.detail?.error) {
+          return null;
+        }
+
         if (!res.ok) {
           throw new Error(
             data.detail.error || data.error || "something went wrong!"
@@ -35,6 +40,7 @@ function App() {
       }
     },
   });
+
   if (isPending) {
     return (
       <div class="h-screen w-full py-20 relative flex md:flex-row flex-col gap-10 justify-center items-center bg-white">

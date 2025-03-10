@@ -12,7 +12,6 @@ from dotenv import load_dotenv
 router = APIRouter(tags=["student"])
 students = db["students"]
 users = db["users"]
-load_dotenv()
 
 
 class SetStudentInfoForm(BaseModel):
@@ -20,11 +19,12 @@ class SetStudentInfoForm(BaseModel):
     password: str
 
 
-class MajorType(BaseModel):
+class StudentInfoForm(BaseModel):
     major_type: str
+    topcit: bool
 
 
-@router.post("/setStudentInfo")
+@router.post("/crawlStudentInfo")
 async def setStudentInfo(
     user: Annotated[dict, Depends(get_user_from_token)],
     data: SetStudentInfoForm,
@@ -44,6 +44,7 @@ async def setStudentInfo(
         return {"error": "No Student Found"}
 
     stu_info["전공 타입"] = student["전공 타입"]
+    stu_info["크롤링"] = True
     student = await students.find_one_and_replace(
         {"userid": stu_info["userid"]}, replacement=stu_info, return_document=True
     )
@@ -68,15 +69,15 @@ async def getStudentInfo(
     return student
 
 
-@router.post("/setStudentMajorType")
+@router.post("/updateStudentInfo")
 async def setStudentMajorType(
     user: Annotated[dict, Depends(get_user_from_token)],
-    data: MajorType,
+    data: StudentInfoForm,
     response: Response,
 ):
     student = await students.find_one_and_update(
         {"userid": ObjectId(user["_id"])},
-        {"$set": {"전공 타입": data.major_type}},
+        {"$set": {"전공 타입": data.major_type, "topcit": data.topcit}},
         return_document=True,
     )
 
