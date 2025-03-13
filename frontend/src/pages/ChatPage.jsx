@@ -2,12 +2,16 @@ import { React, useEffect, useState } from "react";
 import { usePromptStore } from "@/store/prompt";
 import Question from "@/components/ui/Question";
 import Answer from "@/components/ui/Answer";
+import { useQuery } from "@tanstack/react-query";
 
 const ChatPage = () => {
   const [newPrompt, setNewPrompt] = useState({ question: "" });
+  const { data: apiKey } = useQuery({
+    queryKey: ["apiKey"],
+  });
   const { prompts, createPrompt, fetchPrompts } = usePromptStore();
   const HandleAddPrompt = async () => {
-    const { success, message } = await createPrompt(newPrompt);
+    const { success, message } = await createPrompt(newPrompt, apiKey);
     setNewPrompt({ question: "" });
   };
   useEffect(() => {

@@ -86,53 +86,31 @@ class VectorStoreManager:
 
 
 class LlmManager:
-    def __init__(self):
-        self._llm = ChatOpenAI(model="gpt-4o", temperature=0)
+    def __init__(self, api_key = None):
+        self._llm = ChatOpenAI(model="gpt-4o", temperature=0, api_key=api_key)
         self._llm_type = None
         self._template = None
-
+        self.api_key = api_key
     def set_llm_type(self, llm_type):
         self._llm_type = llm_type
 
     def get_template(self):
         if self._llm_type == "category":
-            self._template = """
+            self._template = '''
                 Select the category that best matches the question below. 
                 The categories are: "Graduation", "Food", "Course", "Academic Info", and "None".
 
                 1. Graduation: Questions related to requirements or conditions needed for graduation.
                 2. Food: Questions related to food, such as recommendations or information.
                 3. Course: Questions about course evaluations or recommendations.
-                4. Academic Info: Questions about school announcements or academic-related information.
+                4. Academic Info: Questions about school announcements.
                 5. None: If the question does not fit any of the above categories.
 
-                Question: {question}
+                [Question]
+                {question}
+                
                 Category Name:
-                """
-        elif self._llm_type == "summarize":
-            self._template = """
-            다음 글의 핵심 내용을 유지하면서 요약해 주세요.
-
-            ### 주의사항: 
-            학생이 충족한 부분에 대해서는 충족되었다고 명시하고,
-            학생이 충족하지 못한 부분에 대해서는 자세하게 작성해주세요. 
-
-            ### 요약할 내용:
-            {words}
-
-            """
-        elif self._llm_type == "answer":
-            self._template = """
-            사용자의 정보를 자세히 읽고 질문에 답을 해주세요.
-
-            ### 사용자의 정보:
-            {words}
-
-            ### 질문:
-            {question}
-
-            """
-
+                '''
         # [졸업 카테고리]
         elif self._llm_type == "grad_credits_table":
             self._template = """
@@ -183,7 +161,7 @@ class LlmManager:
             """
 
         elif self._llm_type == "grad_liberalArts_table":
-            self._template = """
+            self._template = '''
             당신은 표에 대한 정보를 dictionary 형태로 변환하는 전문 에이전트입니다.
             교양 이수 체계 표가 주어지면, 해당하는 행을 정확히 추출하여 딕셔너리로 반환하세요.
 
@@ -195,14 +173,17 @@ class LlmManager:
             -   **key: '필수교양'** 
                 **value:** '필수교양'행에 기재된 조건을 요약합니다. _(참고: 학점에 대한 정보는 제외)_
             -   **key: '균형교양'**  
-                **value:** '균형교양' 행의 마지막 열에 해당하는 조건을 요약합니다. _(참고: 학점 관련 정보는 제외)_
+                **value:** '균형교양' 행의 마지막 열에 해당하는 조건을 요약합니다. **총 영역, 포함 영역, 과목 수**를 포함하면 되는데 포함 영역에 대한 정보가 없을 경우 1로 표기
 
             ### 출력 요건
             - 추출한 딕셔너리만 출력하세요.
-            - 추출을 잘할시 팁 $100 와 당근 500개를 드리겠습니다.
-            """
+        
+            ### 출력 예시
+            - "총 8영역, 4영역 포함, 10과목"
+            - "총 7영역, 1영역 포함, 7과목"    
+            '''
         elif self._llm_type == "grad_liberalArts":
-            self._template = """
+            self._template = '''
             당신은 학생의 수강 정보가 교양 졸업 요건(필수교양과 균형교양)을 충족하는지 평가하는 에이전트입니다.
             아래 제공된 **학생 정보**와 **교양 이수 체계 딕셔너리**를 참고하여, 학생이 교양 졸업 요건을 만족하는지 판단하세요.
 
@@ -229,30 +210,28 @@ class LlmManager:
 
             3. **최종 결론**  
             - 위의 평가 결과를 종합하여, 학생이 전체 교양 졸업 요건(필수교양 및 균형교양)을 충족하는지 최종 결론을 내려주세요.
-            """
+            '''
 
         elif self._llm_type == "grad_engineer_subj_table":
-            self._template = """
+            self._template = '''
             당신은 표에서 정보를 추출하는 전문 에이전트입니다.
             주어진 공학인증 표에서 학생 정보와 관련된 행을 정확히 찾아 필요한 데이터를 추출하세요.
 
-            ### 학생 정보:
-            - 학부/학과: {major}
+            [학생 정보]
+            학부/학과: {major}
 
-            ### 공학인증 표:
+            [공학인증 표]
             {engineer_table}
 
-            ___
             ### 출력 지침
-            1. 학생 전공{major}과 일치하는 행을 찾습니다.
-            2. 해당 행에서 **마지막 '전공' 열의 값**을 추출합니다.
+            1. 학생 전공{major}과 가장 비슷한 행을 하나 찾습니다.
+            2. 해당 행에서 **마지막 "전공" 열의 값만 추출**합니다.
 
-            추출한 내용:  
-            """
+            '''
         elif self._llm_type == "grad_engineer_subj":
-            self._template = """
+            self._template = '''
             당신은 학생이 공학 필수 과목을 이수했는지 검토하는 에이전트입니다.
-            아래 **공학 필수 과목**과 **학생 수강 과목**을 바탕으로 필수 과목 이수 여부를 판단하세요.
+            아래 **공학 필수 과목**과 **학생 수강 과목**을 바탕으로 학생이 필수 과목을 모두 이수하였는지 판단하세요.
 
             ### [입력 데이터]
 
@@ -262,10 +241,10 @@ class LlmManager:
             **학생 수강 과목**
             {attended_sbj}
 
-            """
+            '''
 
         elif self._llm_type == "grad_majors":
-            self._template = """
+            self._template = '''
             당신은 학생이 전공 졸업 조건을 충족하는지 검토하는 에이전트입니다.
             아래 **전공 졸업 조건**과 **학생 수강 과목**을 바탕으로 충족 여부를 판단하세요.
 
@@ -288,10 +267,10 @@ class LlmManager:
             - 전공 졸업 조건에 '입학 년도' 관련 정보가 있을 경우, 학생의 입학 년도 부분만 고려하여 판단합니다.
             - **판단할 수 없는 경우 존재시, "관련 정보를 KLAS 사이트에서 확인할 수 없습니다."라고 안내합니다.**
 
-            """
+            '''
 
         elif self._llm_type == "grad_engineer_msi_table":
-            self._template = """
+            self._template = '''
             당신은 공학 인증 기준표를 분석하고 핵심 정보를 요약하는 전문가입니다. 아래 지침에 따라 표의 내용을 정확히 분류해 주세요.
 
             ### 주의사항:
@@ -325,9 +304,9 @@ class LlmManager:
             - 필수 과목:
             - 일반 과목:
 
-            """
+            '''
         elif self._llm_type == "grad_engineer_msi":
-            self._template = """
+            self._template = '''
             당신은 학생이 공학 msi 학점이 채워졌는지 검토하는 에이전트입니다.
             아래 **msi 정보**와 **학생 수강 과목**을 바탕으로 충족 여부를 판단하세요.
 
@@ -343,7 +322,7 @@ class LlmManager:
             {attended_sbj}
 
 
-            """
+            '''
 
         return self._template
 
@@ -356,12 +335,10 @@ class LlmManager:
     def get_chat_history_chain(self):
         prompt = ChatPromptTemplate.from_messages(
             [
-                (
-                    "system",
-                    "You are a helpful Kwangwoon University assistant. Answer all questions to the best of your ability based on reference data. The provided chat history includes facts about the user you are speaking with.",
-                ),
+                ("system", "You are a helpful and precise Kwangwoon University assistant. Answer the question to the best of your ability based on the reference data. The provided chat history includes facts about the user, you are speaking with.",),
                 ("placeholder", "{chat_history}"),
                 ("placeholder", "{reference_data}"),
+                #("placeholder", "{uploaded_image}"),
                 ("user", "{input}"),
             ]
         )

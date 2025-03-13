@@ -20,3 +20,4 @@ bs4
 passlib[bcrypt]
 pyjwt
 langchain_teddynote
+cryptography

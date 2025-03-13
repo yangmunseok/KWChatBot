@@ -7,7 +7,7 @@ from backend.rag.kw_chat_bot import (
     ConversationMemory,
     format_docs,
 )
-from backend.helpers.auth_helper import get_user_from_token
+from backend.helpers.auth_helper import get_user_from_token, decode_api_key
 from pydantic import BaseModel
 from bson import ObjectId
 from typing import Annotated
@@ -29,7 +29,7 @@ students = db["students"]
 faissStores = db["faiss_stores"]
 
 vec_manager = VectorStoreManager()
-llm_manager = LlmManager()
+#llm_manager = LlmManager()
 md_manager = MdManager()
 kor_time_zone = ZoneInfo("Asia/Seoul")
 
@@ -87,7 +87,7 @@ async def AddPrompt(
         }
 
     memory = await LoadMemory(userid)
-
+    llm_manager = LlmManager(api_key=decode_api_key(stu_info["api_key"]))
     query = data.question
     answer = {"question": query}
     now_kst = datetime.now(kor_time_zone)
@@ -103,6 +103,7 @@ async def AddPrompt(
     if prev_prompt and not response == "Academic Info":
         answer["reference_data"] = prev_prompt["reference_data"]
     else:
+        reference_data = None
         match response:
             case "Graduation":
                 print("졸업 카테고리----------------------------")
@@ -243,9 +244,7 @@ async def AddPrompt(
                                     search_type="mmr",
                                     search_kwargs={"k": 1, "lambda_mult": 0.5},
                                 )
-                                chosen_doc = retriever.invoke(
-                                    f'# {stu_info["학부/학과"]}_{stu_info["입학 년도"][:4]}'
-                                )
+                                chosen_doc = retriever.invoke(f'# {stu_info["학부/학과"].split()[0]}_{stu_info["입학 년도"][:4]}')
                                 chosen_text = format_docs(chosen_doc)
                                 llm_manager.set_llm_type(
                                     "grad_engineer_msi_table"
@@ -256,16 +255,8 @@ async def AddPrompt(
                                     "grad_engineer_msi"
                                 )  # msi gpt ------------------------
                                 chain = llm_manager.get_chain()
-                                engineer_msi_response = chain.invoke(
-                                    {
-                                        "msi_info": table_info,
-                                        "attended_sbj": stu_info["수강한 과목"],
-                                    }
-                                )
-                                print(
-                                    "4. 공학인증 MSI에 대한 평가-----------------------------"
-                                )
-                                print(engineer_msi_response)
+                                engineer_msi_response = chain.invoke({'msi_info': table_info, 'attended_sbj': stu_info['수강한 과목']})
+                                print("4. 공학인증 MSI에 대한 평가-----------------------------\n", engineer_msi_response)
                                 # 2. 공학필수 과목
                                 retriever = vecs[1].as_retriever(
                                     search_type="mmr",
@@ -296,6 +287,7 @@ async def AddPrompt(
                                         "required_sbj": table_info,
                                     }
                                 )
+                                print("table_info: ",table_info)
                                 print(
                                     "5. 공학필수과목에 대한 평가 --------------------"
                                 )
@@ -360,11 +352,14 @@ async def AddPrompt(
         print(i)
 
     faissStore = await faissStores.find_one({"userid": userid})
-    data = memory._vector_store.serialize_to_bytes()
-    await faissStores.find_one_and_replace(
-        {"userid": userid},
-        {"userid": userid, "vector_store": data},
-    )
+    vector_store = memory._vector_store.serialize_to_bytes()
+    if faissStore is None:
+        await faissStores.insert_one({"userid": userid, "vector_store":Binary(vector_store)})
+    else:
+        await faissStores.find_one_and_replace(
+            {"userid": userid},
+            {"userid": userid, "vector_store": Binary(vector_store)},
+        )
 
     result = await prompts.insert_one(answer)
     result = await prompts.find_one_and_update(

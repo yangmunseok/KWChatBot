@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Response, status
 import requests
 from backend.rag.crawling import personalInfo
 from pydantic import BaseModel
-from backend.helpers.auth_helper import get_user_from_token
+from backend.helpers.auth_helper import get_user_from_token, encode_api_key
 from backend.utils.db_utils import db
 from typing import Annotated
 import json
@@ -23,6 +23,8 @@ class StudentInfoForm(BaseModel):
     major_type: str
     topcit: bool
 
+class SetApiKeyInfo(BaseModel):
+    api_key:str
 
 @router.post("/crawlStudentInfo")
 async def setStudentInfo(
@@ -45,6 +47,7 @@ async def setStudentInfo(
 
     stu_info["전공 타입"] = student["전공 타입"]
     stu_info["크롤링"] = True
+    stu_info["api_key"] = student["api_key"]
     student = await students.find_one_and_replace(
         {"userid": stu_info["userid"]}, replacement=stu_info, return_document=True
     )
@@ -81,6 +84,24 @@ async def setStudentMajorType(
         return_document=True,
     )
 
+    if student is None:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"error": "No Student Found"}
+
+    student["_id"] = str(student["_id"])
+    student["userid"] = str(student["userid"])
+    return student
+
+@router.post("/setApiKey")
+async def setApiKey(user: Annotated[dict, Depends(get_user_from_token)],data:SetApiKeyInfo, response:Response):
+    student = await students.find_one_and_update(
+        {"userid": ObjectId(user["_id"])},
+        {"$set": {"api_key":encode_api_key(data.api_key)}},
+        return_document=True,
+    )
+    print("setApikey: ", student)
+    print("ohno:",encode_api_key(data.api_key))
+    print("ohno:",encode_api_key(data.api_key))
     if student is None:
         response.status_code = status.HTTP_404_NOT_FOUND
         return {"error": "No Student Found"}

@@ -83,6 +83,7 @@ async def signup(userform: SignUpForm, response: Response):
             "크롤링": False,
             "userid": user.inserted_id,
             "topcit": False,
+            "api_key": None,
         }
     )
     user = await users.find_one_and_update(

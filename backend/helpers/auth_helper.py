@@ -11,6 +11,7 @@ from typing import Annotated
 import pytz
 import json
 from jwt.exceptions import ExpiredSignatureError
+from cryptography.fernet import Fernet
 
 seoul_tz = pytz.timezone("Asia/Seoul")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -18,7 +19,10 @@ users = db["users"]
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
+API_SECRET_KEY = os.getenv("API_SECRET_KEY")
 
+# 비밀 키로 Fernet 객체 생성
+cipher = Fernet(API_SECRET_KEY)
 
 class UserForm(BaseModel):
     username: str
@@ -32,6 +36,11 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
+def encode_api_key(api_key:str):
+    return cipher.encrypt(api_key.encode()).decode()
+
+def decode_api_key(hashed_api_key:str):
+    return cipher.decrypt(hashed_api_key.encode()).decode()
 
 def generate_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()

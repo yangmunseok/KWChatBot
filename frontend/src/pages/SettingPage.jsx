@@ -7,6 +7,7 @@ const SettingPage = () => {
   const toastId = useRef();
   const majorTypesOption = useRef();
   const topcitCheckBox = useRef();
+  const apiKeyInput = useRef();
   const majorTypes = [
     "단일 전공",
     "심화 전공",
@@ -18,7 +19,7 @@ const SettingPage = () => {
   const queryClient = useQueryClient();
 
   const { data: studentData, isPending: studentPending } = useQuery({
-    queryKey: ["studentData"],
+    queryKey: ["studentData", "authUser"],
     queryFn: async () => {
       try {
         const res = await fetch("api/student/getStudentInfo");
@@ -64,6 +65,30 @@ const SettingPage = () => {
     },
   });
 
+  const { mutate: apiKeyMutation } = useMutation({
+    mutationFn: async () => {
+      try {
+        const res = await fetch("api/student/setApiKey", {
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+          body: JSON.stringify({
+            api_key: apiKeyInput.current.value,
+          }),
+        });
+        console.log("current: ", apiKeyInput.current.value);
+        if (!res.ok) {
+          throw new Error(
+            data.detail?.error || data.error || "Something wend wrong!"
+          );
+        }
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    onSuccess: () => {
+      toast.success("Api Key updated!");
+    },
+  });
   const {
     mutate: crawlMutaion,
     isError,
@@ -148,6 +173,23 @@ const SettingPage = () => {
                 />
                 <label htmlFor="topcit">TOPCIT</label>
               </div>
+              <div>
+                <p className="block text-sm font-medium text-gray-700">
+                  OpenAi Api Key
+                </p>
+                <input
+                  type="password"
+                  className="block rounded-lg m-1"
+                  ref={apiKeyInput}
+                />
+                <p className="text-sm m-1"> ⚠️you cannot undo this process. </p>
+                <button
+                  onClick={apiKeyMutation}
+                  class="!rounded-button text-white m-2 px-4 py-2 text-sm font-medium bg-custom hover:bg-custom/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom"
+                >
+                  SetApiKey
+                </button>
+              </div>
             </div>
           </section>
 
@@ -205,7 +247,7 @@ const SettingPage = () => {
                 <div class="mt-2 space-y-2">
                   <input
                     type="text"
-                    class="block rounded-lg"
+                    className="block rounded-lg"
                     placeholder="ID"
                     onChange={(e) => {
                       klasForm.current.id = e.target.value;
@@ -213,7 +255,7 @@ const SettingPage = () => {
                   />
                   <input
                     type="password"
-                    class="block rounded-lg"
+                    className="block rounded-lg"
                     placeholder="PASSWORD"
                     onChange={(e) => {
                       klasForm.current.password = e.target.value;
