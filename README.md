@@ -6,7 +6,7 @@ KWChatBot
 
 ChatBot using RAGS
 
-[![Video Label](http://img.youtube.com/vi/kWaXxiHY4JI/0.jpg)](https://youtu.be/kWaXxiHY4JI)
+[![Video Label](frontend/public/screenshot1.png)](https://youtu.be/kWaXxiHY4JI)
 
 ## Getting Started
 
